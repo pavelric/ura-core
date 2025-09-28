@@ -243,9 +243,14 @@ namespace
 		SaveIl2CppArrayData(compressed_result, "request_compressed");
 
 		try {
-			const size_t safe_length = (data->max_length > 65536) ? 65536 : data->max_length;
-			//MsgPackData::DisplayMsgPackData(buf, safe_length);
-			MsgPackData::SaveMsgPackData(buf, safe_length);
+			const size_t buffer_length = data->max_length;
+			
+			if (buffer_length > 50 * 1024 * 1024) {
+				printf("[MsgPack Saver] Warning: Request buffer is very large (%zu bytes), skipping JSON conversion\n", buffer_length);
+			} else {
+				//MsgPackData::DisplayMsgPackData(buf, buffer_length);
+				MsgPackData::SaveMsgPackData(buf, buffer_length, "request");
+			}
 		}
 		catch (const std::exception& e) {
 			// e.what() contains the error message from the exception
@@ -267,8 +272,6 @@ namespace
 		auto data = reinterpret_cast<decltype(HttpHelper_DecompressResponse_hook)*>(HttpHelper_DecompressResponse_orig)(compressed);
 		auto buf = reinterpret_cast<const char*>(data) + kIl2CppSizeOfArray;
 
-		// Print the length that the game *thinks* the buffer is.
-		// Is this a sane number? Or is it huge/negative?
 		//printf("[DEBUG] Reported data->max_length: %u\n", data->max_length);
 		
 
@@ -279,20 +282,16 @@ namespace
 		SaveIl2CppArrayData(data, "response_uncompressed");
 
 		try {
-			const size_t safe_length = (data->max_length > 65536) ? 65536 : data->max_length;
+			const size_t buffer_length = data->max_length;
 			const int HEADER_SIZE = 0; // No 170-bytes long header? Might be because of where we retrieve the data?
-			//MsgPackData::DisplayMsgPackData(buf + HEADER_SIZE, safe_length - HEADER_SIZE);
-			MsgPackData::SaveMsgPackData(buf + HEADER_SIZE, safe_length - HEADER_SIZE);
+			
+			if (buffer_length > 50 * 1024 * 1024) {
+				printf("[MsgPack Saver] Warning: Response buffer is very large (%zu bytes), skipping JSON conversion\n", buffer_length);
+			} else {
+				//MsgPackData::DisplayMsgPackData(buf + HEADER_SIZE, buffer_length - HEADER_SIZE);
+				MsgPackData::SaveMsgPackData(buf + HEADER_SIZE, buffer_length - HEADER_SIZE, "response");
+			}
 
-			/*std::string buffer_copy(buf, data->max_length);
-
-			std::thread file_saver_thread([data_copy = std::move(buffer_copy)]() {
-				// This code will run in the background
-				printf("[Thread] File saver thread started...\n");
-				MsgPackData::SaveMsgPackData(data_copy);
-			});
-
-			file_saver_thread.detach();*/
 		}
 		catch (const std::exception& e) {
 			// e.what() contains the error message from the exception

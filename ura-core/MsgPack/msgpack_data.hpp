@@ -63,10 +63,8 @@ namespace MsgPackData
 	}
 
 
-	// Forward declaration is needed because the function now calls itself.
 	std::string ToJsonSafe(const msgpack11::MsgPack& obj, int indent_level = 0);
 
-	// Helper function to create an indentation string.
 	std::string indent(int level) {
 		return std::string(level * 2, ' ');
 	}
@@ -213,11 +211,18 @@ namespace MsgPackData
 		}
 	}
 
-	void SaveMsgPackData(const char* buffer, size_t length) {
+	void SaveMsgPackData(const char* buffer, size_t length, const std::string& prefix = "response") {
 		if (!buffer) {
 			printf("[MsgPack Saver] Error: Buffer is null.\n");
 			return;
 		}
+
+		if (length == 0) {
+			printf("[MsgPack Saver] Error: Buffer length is zero.\n");
+			return;
+		}
+
+		printf("[MsgPack Saver] Processing %s buffer of %zu bytes\n", prefix.c_str(), length);
 
 		try {
 			std::string err;
@@ -227,7 +232,7 @@ namespace MsgPackData
 			msgpack11::MsgPack parsed_data = msgpack11::MsgPack::parse(bin_data, err);
 
 			if (!err.empty()) {
-				printf("[MsgPack Saver] Parse Error: %s\n", err.c_str());
+				printf("[MsgPack Saver] Parse Error for %s (%zu bytes): %s\n", prefix.c_str(), length, err.c_str());
 				return;
 			}
 
@@ -240,7 +245,7 @@ namespace MsgPackData
 			auto now = std::chrono::system_clock::now();
 			auto UTC = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
-			std::string filename = "Packets\\response_" + std::to_string(UTC) + ".json";
+			std::string filename = "Packets\\" + prefix + "_" + std::to_string(UTC) + ".json";
 
 			std::ofstream out_file(filename);
 			if (out_file.is_open()) {
@@ -259,21 +264,27 @@ namespace MsgPackData
 		}
 	}
 
-	// Modified to accept a const string reference
-	void SaveMsgPackData(const std::string& buffer_data) {
+	void SaveMsgPackData(const std::string& buffer_data, const std::string& prefix = "response") {
+		if (buffer_data.empty()) {
+			printf("[MsgPack Saver] Error: Buffer data is empty.\n");
+			return;
+		}
+
+		printf("[MsgPack Saver] Processing %s buffer of %zu bytes\n", prefix.c_str(), buffer_data.size());
+
 		try {
 			std::string err;
 			const msgpack11::MsgPack parsed_data = msgpack11::MsgPack::parse(buffer_data, err);
 
 			if (!err.empty()) {
-				printf("[MsgPack Saver] Parse Error: %s\n", err.c_str());
+				printf("[MsgPack Saver] Parse Error for %s (%zu bytes): %s\n", prefix.c_str(), buffer_data.size(), err.c_str());
 				return;
 			}
 
 			auto now = std::chrono::system_clock::now();
 			auto UTC = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
-			string filename = "Packets\\response_" + std::to_string(UTC) + ".json";
+			string filename = "Packets\\" + prefix + "_" + std::to_string(UTC) + ".json";
 
 			std::ofstream out_file(filename);
 			if (out_file.is_open()) {

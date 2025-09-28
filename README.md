@@ -1,13 +1,13 @@
 # ura-core
 Based on https://github.com/UmamusumeResponseAnalyzer/ura-core
 Largely leveraged umamusume-localify (https://github.com/GEEKiDoS/umamusume-localify) as a reference for:
-- MsgPack (de)serialization
+- MsgPack deserialization
 - CompressRequest / DecompressResponse functions analysis
 - il2cpp structures definition
 
 The few edits I added are mainly to look into the API calls the game makes.
 The debug config:
-- saves the raw request and response to files in the "Packets" folder; you can inspect those with a HEX editor
+- saves the raw requests and responses to files in the "Packets" folder; you can inspect those with a HEX editor
 - saves the JSON version of the request and response to files in the "Packets" folder
 
 Haven't tested every endpoint, but most of them are readable, except for the race data: it has a field called "race_scenario" which is compressed & encrypted. E.g. below:
@@ -31,17 +31,19 @@ Haven't tested every endpoint, but most of them are readable, except for the rac
 }
 ```
 
-I haven't gotten around to parsing that specific field yet (the game doesn't seem to call the two functions to read it / maybe the hook is incomplete (highly likely))
+I haven't gotten around to parsing that specific field yet (the game doesn't seem to call the two functions to read it / maybe the hook is incomplete (highly likely)). Probably a custom MsgPack ID as well, will have to analyze the requests in more detail.
 
 The Release config is just a 60 FPS mode.
 You can build both configs with Visual Studio. Then place the output dll in the game directory (where the .exe is).
 
-# Next Steps
-Seems quite difficult but the next goal will be to make a custom client to make requests to the game's server. This is requires being able to replicate the encryption & compression the game does (RJ256 AES & LZ4 compression).
-Some notes & rambling from poking at the game with Cheat Engine:
+## Next Steps
+Add a manual field in the request's JSON to indicate the endpoint called. (still need to find a way to do this)
 
-there's a "Gallop::Cryptographer" class, with several methods. Putting breakpoints in its methods yields the following chain, triggered when performing a network action in-game:
+Then, seems quite difficult but the next goal will be to make a custom client to make requests to the game's server. This requires being able to replicate the encryption & compression the game does (RJ256 AES & LZ4 compression).
+
+### Some notes & rambling from poking at the game with Cheat Engine:
+There's a "Gallop::Cryptographer" class, with several methods. Putting breakpoints in its methods yields the following chain, triggered when performing a network action in-game:
 "MakeMd5() -> CompressRequest() -> MakeMd5() -> EncryptRJ256() -> GenerateKeyString() -> DecompressResponse() -> DecryptRJ256()"
 
-The ComputeHash() / Encode() / Decode() methods of the Cryptographer class never triggered a breakpoint, although there seem to be in the assembly instructions list calls to similarly named functions, but from the System.Cryptography library. GenerateIvString() is never called either.
+The ComputeHash() / Encode() / Decode() methods of the Cryptographer class never seem to trigger their breakpoints, although there seem to be in the assembly instructions list calls to similarly named functions, but from the System.Cryptography library. GenerateIvString() is never called either.
 A bit puzzled by the order of the calls, because for example, supposedly the data is first decompressed then decrypted but we still get readable data from hooking DecompressResponse() directly, and without needing to reverse DecryptRJ256().
