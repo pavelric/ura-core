@@ -1,6 +1,5 @@
 # ura-core
-Based on https://github.com/UmamusumeResponseAnalyzer/ura-core
-Largely leveraged umamusume-localify (https://github.com/GEEKiDoS/umamusume-localify) as a reference for:
+Based on https://github.com/UmamusumeResponseAnalyzer/ura-core and largely leveraged umamusume-localify (https://github.com/GEEKiDoS/umamusume-localify) as a reference for:
 - MsgPack deserialization
 - CompressRequest / DecompressResponse functions analysis
 - il2cpp structures definition
