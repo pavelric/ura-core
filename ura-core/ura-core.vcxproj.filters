@@ -10,6 +10,12 @@
     <Filter Include="notifier">
       <UniqueIdentifier>{a26a6169-5be8-4599-aa98-b6eac09405c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MsgPack">
+      <UniqueIdentifier>{c896c1ea-8cab-4612-bbac-a6e552956489}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgPack\msgpack11">
+      <UniqueIdentifier>{9028d3d2-2e77-49eb-be0a-a999104c206e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllproxy\proxy.cpp">
@@ -23,6 +29,9 @@
     </ClCompile>
     <ClCompile Include="hook.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MsgPack\msgpack11\msgpack11.cpp">
+      <Filter>MsgPack\msgpack11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="dllproxy\proxy.def">
@@ -43,6 +52,12 @@
       <Filter>notifier</Filter>
     </ClInclude>
     <ClInclude Include="stdinclude.hpp" />
+    <ClInclude Include="MsgPack\msgpack_modify.hpp">
+      <Filter>MsgPack</Filter>
+    </ClInclude>
+    <ClInclude Include="MsgPack\msgpack_data.hpp">
+      <Filter>MsgPack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="dllproxy\psapi.asm">

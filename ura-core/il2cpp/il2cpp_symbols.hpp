@@ -195,6 +195,18 @@ typedef struct Il2CppArraySize
 	void* vector[0];
 } Il2CppArraySize;
 
+typedef uintptr_t il2cpp_array_size_t;
+
+template<typename T>
+struct Il2CppArraySize_t
+{
+	Il2CppObject obj;
+	void* bounds;
+	il2cpp_array_size_t max_length;
+	alignas(8)
+	void* vector[0];
+};
+
 static const size_t kIl2CppSizeOfArray = (offsetof(Il2CppArraySize, vector));
 
 // function types

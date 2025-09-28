@@ -9,7 +9,7 @@ extern bool init_hook();
 extern void uninit_hook();
 
 bool compatible_mode = false;
-int g_max_fps = -1;
+int g_max_fps = 60;
 int g_vertical_sync_count = 0;
 bool g_skip_single_instance_check = true;
 std::string g_notifier_host = "http://127.0.0.1:4693";
@@ -89,7 +89,7 @@ int __stdcall DllMain(HINSTANCE hInstance, DWORD reason, LPVOID)
 		proxy::init_proxy(proxy_filename);
 
 		// check name
-		if (module_path.filename() != "umamusume.exe")
+		if (module_path.filename() != "UmamusumePrettyDerby.exe")
 			return 1;
 
 		std::filesystem::current_path(
@@ -107,8 +107,7 @@ int __stdcall DllMain(HINSTANCE hInstance, DWORD reason, LPVOID)
 
 		SetConsoleTitle("URA Core - Debug Console");
 
-		// set this to avoid turn japanese texts into question mark
-		SetConsoleOutputCP(65001);
+		SetConsoleOutputCP(CP_UTF8);
 		std::locale::global(std::locale(""));
 #endif
 
